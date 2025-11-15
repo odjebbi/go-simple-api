@@ -14,8 +14,8 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	// API routes
-	http.Handle("/", handlers.HomeHandler)
-    http.Handle("/static/", http.StripPrefix("/static/", handlers.StaticHandler()))
+	http.HandleFunc("/", handlers.HomeHandler)
+	http.Handle("/static/", http.StripPrefix("/static/", handlers.StaticHandler()))
 	http.HandleFunc("/api/hello", handlers.HelloHandler)
 	http.HandleFunc("/health", handlers.HealthHandler)
 	http.HandleFunc("/api/info", handlers.InfoHandler)

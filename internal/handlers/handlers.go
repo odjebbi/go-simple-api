@@ -1,28 +1,30 @@
 package handlers
 
 import (
+	"embed"
 	"encoding/json"
+	"io/fs"
 	"net/http"
-	"path/filepath"
-	 "embed"
 )
-//go:embed ../../static/*
+
+//go:embed static/*
 var staticFiles embed.FS
 
+// HomeHandler sert index.html depuis embed
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-    if r.URL.Path != "/" {
-        http.NotFound(w, r)
-        return
-    }
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
 
-    index, _ := staticFiles.Open("static/index.html")
-    http.ServeContent(w, r, "index.html", time.Now(), index)
+	subFS, _ := fs.Sub(staticFiles, "static")
+	http.FileServer(http.FS(subFS)).ServeHTTP(w, r)
 }
+
 func StaticHandler() http.Handler {
-    fsys, _ := fs.Sub(staticFiles, "static")
-    return http.FileServer(http.FS(fsys))
+	fsys, _ := fs.Sub(staticFiles, "static")
+	return http.FileServer(http.FS(fsys))
 }
-
 
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
