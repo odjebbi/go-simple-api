@@ -4,15 +4,25 @@ import (
 	"encoding/json"
 	"net/http"
 	"path/filepath"
+	 "embed"
 )
+//go:embed ../../static/*
+var staticFiles embed.FS
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-	http.ServeFile(w, r, filepath.Join("static", "index.html"))
+    if r.URL.Path != "/" {
+        http.NotFound(w, r)
+        return
+    }
+
+    index, _ := staticFiles.Open("static/index.html")
+    http.ServeContent(w, r, "index.html", time.Now(), index)
 }
+func StaticHandler() http.Handler {
+    fsys, _ := fs.Sub(staticFiles, "static")
+    return http.FileServer(http.FS(fsys))
+}
+
 
 func HelloHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
